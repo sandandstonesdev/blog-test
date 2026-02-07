@@ -5,6 +5,7 @@ import "./globals.css";
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { NEXT_PUBLIC_APP_URL } from "@/config/config";
 
  
 const inter = Inter({
@@ -15,7 +16,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DevTestBlog",
   description: "DevTestBlog deployed",
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(NEXT_PUBLIC_APP_URL),
   openGraph: {
     title: "DevTestBlog",
     description: "DevTestBlog deployed",

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { NEXT_PUBLIC_APP_URL } from '../config/config';
  
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,14 +10,10 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/about/'],
       },
       {
-        userAgent: ['Applebot', 'Bingbot'],
-        disallow: ['/'],
-      },
-      {
         userAgent: '*',
         disallow: ['/'],
       }
     ],
-    sitemap: '',
+    sitemap: `${NEXT_PUBLIC_APP_URL}/sitemap.xml`,
   }
 }

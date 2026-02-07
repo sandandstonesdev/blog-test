@@ -1,34 +1,34 @@
-import path from "path"
+import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import { unstable_cache } from 'next/cache';
+import { NEXT_PUBLIC_APP_URL } from '../config/config';
 
-const POSTS_DIRECTORY = path.join(process.cwd(), "content", "posts");
-const CACHE_CONFIG = {
-  TAGS: { ALL_POSTS: 'posts', SINGLE_POST: 'post' },
-  REVALIDATE: 3600,
-} as const;
+const _POSTS_DIRECTORY = path.join(process.cwd(), "content", "posts");
+const _CACHE_TAGS = { ALL_POSTS: 'posts', SINGLE_POST: 'post' } as const;
+const _CACHE_REVALIDATE = parseInt(process.env.CACHE_REVALIDATE || '3600', 10);
 
 interface PostData {
-  slug: string
-  title: string
-  date: string
-  content: string
+  slug: string;
+  title: string;
+  date: string;
+  content: string;
+  url?: string;
 }
 
 function getPostBySlug(slug: string): PostData | null {
   if (!slug) return null;
 
   try {
-    const fullPath = path.join(POSTS_DIRECTORY, `${slug}.mdx`);
+    const fullPath = path.join(_POSTS_DIRECTORY, `${slug}.mdx`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const { data, content } = matter(fileContents);
-    
     return {
       slug,
       title: data.title || slug,
       date: data.date || new Date().toISOString(),
       content,
+      url: `${NEXT_PUBLIC_APP_URL}/posts/${slug}`,
     };
   } catch (error) {
     console.error(`Failed to read post ${slug}:`, error);
@@ -37,7 +37,7 @@ function getPostBySlug(slug: string): PostData | null {
 }
 
 export function getPostSlugs(): string[] {
-  const filenames = fs.readdirSync(POSTS_DIRECTORY);
+  const filenames = fs.readdirSync(_POSTS_DIRECTORY);
   return filenames
     .filter((filename) => filename.endsWith(".mdx"))
     .map((filename) => filename.replace(/\.mdx$/, ""));
@@ -51,18 +51,18 @@ function getPostData(): PostData[] {
 
 export const getCachedPostData = unstable_cache(
   async (): Promise<PostData[]> => getPostData(),
-  [CACHE_CONFIG.TAGS.ALL_POSTS],
+  [_CACHE_TAGS.ALL_POSTS],
   { 
-    revalidate: CACHE_CONFIG.REVALIDATE,
-    tags: [CACHE_CONFIG.TAGS.ALL_POSTS],
+    revalidate: _CACHE_REVALIDATE,
+    tags: [_CACHE_TAGS.ALL_POSTS],
   }
 );
 
 export const getCachedPostBySlug = unstable_cache(
   async (slug: string): Promise<PostData | null> => getPostBySlug(slug),
-  [CACHE_CONFIG.TAGS.SINGLE_POST],
+  [_CACHE_TAGS.SINGLE_POST],
   { 
-    revalidate: CACHE_CONFIG.REVALIDATE,
-    tags: [CACHE_CONFIG.TAGS.SINGLE_POST],
+    revalidate: _CACHE_REVALIDATE,
+    tags: [_CACHE_TAGS.SINGLE_POST],
   }
 );
