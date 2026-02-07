@@ -1,13 +1,13 @@
-import { getCachedPostData } from '@/utils/postUtlis'
+import { getCachedPostData } from '@/utils/posttFetcher'
 import Link from 'next/link'
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Posts | My Blog",
-  description: "Browse all blog posts",
+  description: "Browse blog posts",
   openGraph: {
     title: "Posts | My Blog",
-    description: "Browse all blog posts",
+    description: "Browse blog posts",
     url: '/posts',
     images: [
       {

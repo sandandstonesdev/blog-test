@@ -1,12 +1,13 @@
-import { Metadata } from 'next'
+import { baseMetadata } from '@/config/metadata';
 
-export const metadata: Metadata = {
+export const metadata = {
+  ...baseMetadata,
   title: 'Home',
-  description: 'This is home page',
+  description: 'Home page',
   openGraph: {
+    ...baseMetadata.openGraph,
     title: 'Home',
-    description: 'This is home page',
-    url: '/',
+    description: 'Home page',
     images: [
       {
         url: '/og-image.png',
@@ -17,9 +18,9 @@ export const metadata: Metadata = {
     ],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
-}
+};
 
 const Homepage = () => {
   return (

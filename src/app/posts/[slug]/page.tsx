@@ -6,7 +6,9 @@ import remarkFrontmatter from 'remark-frontmatter';
 import { matter } from 'vfile-matter';
 
 
-import { getCachedPostBySlug, getPostSlugs } from '@/utils/postUtlis';
+import { baseMetadata } from '@/config/metadata';
+import { NEXT_PUBLIC_APP_URL } from '@/config/config';
+import { getCachedPostBySlug, getPostSlugs } from '@/utils/posttFetcher';
 
 type Params = Promise<{ slug: string}>;
 
@@ -20,29 +22,32 @@ export async function generateStaticPaths() {
   return slugs.map((slug) => `/posts/${slug}`);
 }
 
+
 export async function generateMetadata({ params }: { params: Params }) {
   const resolvedParams = await params;
   const post = await getCachedPostBySlug(resolvedParams.slug);
-    return {
-        title: `Post: ${post?.title}`,
-        description: `This is the post about ${post?.title} published on ${post?.date}.`,
-        openGraph: {
-            title: `Post: ${post?.title}`,
-            description: `This is the post about ${post?.title} published on ${post?.date}.`,
-            url: `/posts/${post?.slug}`,
-            images: [
-                {
-                    url: '/og-image.png',
-                    width: 1200,
-                    height: 630,
-                    alt: `Preview image for ${post?.title}`,
-                },
-            ],
+  return {
+    ...baseMetadata,
+    title: `Post: ${post?.title}`,
+    description: `This is the post about ${post?.title} published on ${post?.date}.`,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      title: `Post: ${post?.title}`,
+      description: `This is the post about ${post?.title} published on ${post?.date}.`,
+      url: `${NEXT_PUBLIC_APP_URL}/posts/${post?.slug}`,
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: `Preview image for ${post?.title}`,
         },
-        icons: {
-            icon: "/favicon.ico",
-        },
-    };
+      ],
+    },
+    icons: {
+      icon: '/favicon.ico',
+    },
+  };
 }
 
 const Post = async ({ params }: { params: Params }) => {

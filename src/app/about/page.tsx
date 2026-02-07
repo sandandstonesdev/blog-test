@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About | My Blog",
-  description: "Learn more about me and this blog",
+  description: "About me and this blog",
   openGraph: {
     title: "About | My Blog",
-    description: "Learn more about me and this blog",
+    description: "About me and this blog",
     url: '/about',
     images: [
       {
