@@ -1,0 +1,138 @@
+---
+title: "Mastering Marshalling in C#"
+date: "2026-02-04"
+---
+
+## Introduction
+
+Marshalling is the process of transforming data between managed and unmanaged memory. It's essential for interoperability with native APIs, COM components, and platform-specific functionality.
+
+## Understanding Blittable Types
+
+**Blittable types** have identical memory representations in managed and unmanaged code:
+
+- Primitive types: `byte`, `int`, `float`, `double`
+- Structs containing only blittable types
+- One-dimensional arrays of blittable types
+
+**Non-blittable types** require conversion:
+
+- `string`, `bool`, `decimal`
+- Arrays of non-blittable types
+- Classes and objects
+
+## P/Invoke Basics
+
+Call native Windows APIs using Platform Invocation:
+
+```csharp
+using System.Runtime.InteropServices;
+
+public class NativeMethods
+{
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern int MessageBox(
+        IntPtr hWnd,
+        [MarshalAs(UnmanagedType.LPWStr)] string text,
+        [MarshalAs(UnmanagedType.LPWStr)] string caption,
+        uint type);
+    
+    // Usage
+    public static void ShowMessage()
+    {
+        MessageBox(IntPtr.Zero, "Hello from C#!", "Title", 0);
+    }
+}
+```
+
+## Custom Struct Layouts
+
+Control memory layout for interop scenarios:
+
+```csharp
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct WIN32_FIND_DATA
+{
+    public uint dwFileAttributes;
+    public System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
+    public System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
+    public System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
+    public uint nFileSizeHigh;
+    public uint nFileSizeLow;
+    public uint dwReserved0;
+    public uint dwReserved1;
+    
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+    public string cFileName;
+    
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
+    public string cAlternateFileName;
+}
+```
+
+## Memory Pinning with GCHandle
+
+Prevent the GC from moving objects during native calls:
+
+```csharp
+public unsafe void ProcessArray(byte[] data)
+{
+    GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+    try
+    {
+        IntPtr ptr = handle.AddrOfPinnedObject();
+        // Pass ptr to native code
+        NativeMethod(ptr, data.Length);
+    }
+    finally
+    {
+        if (handle.IsAllocated)
+            handle.Free();
+    }
+}
+
+[DllImport("native.dll")]
+private static extern void NativeMethod(IntPtr data, int length);
+```
+
+## Modern Approaches
+
+### Using Span<T> and Memory<T>
+
+```csharp
+public unsafe void ProcessWithSpan(Span<byte> data)
+{
+    fixed (byte* ptr = data)
+    {
+        NativeMethod((IntPtr)ptr, data.Length);
+    }
+}
+```
+
+### Source Generators (C# 9+)
+
+```csharp
+[LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16)]
+partial int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+```
+
+## Best Practices
+
+1. **Always free GCHandles** to prevent memory leaks
+2. **Use SafeHandle** for unmanaged resources instead of IntPtr
+3. **Specify CharSet** explicitly to avoid platform-specific issues
+4. **Enable SetLastError** and check with `Marshal.GetLastWin32Error()`
+5. **Consider LibraryImport** for modern .NET applications
+6. **Profile marshalling overhead** in performance-critical paths
+
+## Common Pitfalls
+
+- Forgetting to free pinned handles
+- Incorrect struct layout causing data corruption
+- String encoding mismatches (ANSI vs Unicode)
+- Not checking for errors after native calls
+- Passing managed objects directly to unmanaged code
+
+## Conclusion
+
+Marshalling is powerful but requires careful attention to memory management and data layout. Modern .NET provides safer alternatives, but understanding the fundamentals remains crucial for effective interop programming.

@@ -1,0 +1,102 @@
+---
+title: "Understanding Garbage Collection in C#"
+date: "2026-02-04"
+---
+
+## Introduction
+
+Garbage Collection (GC) is one of the most powerful features of the .NET runtime, automatically managing memory allocation and deallocation. Understanding how it works is crucial for building high-performance applications.
+
+## How Garbage Collection Works
+
+The .NET GC uses a **generational approach** to optimize performance:
+
+- **Generation 0**: Short-lived objects (most objects)
+- **Generation 1**: Medium-lived objects (survivor space)
+- **Generation 2**: Long-lived objects (tenured space)
+
+When Gen 0 fills up, a collection occurs. Objects that survive are promoted to Gen 1, and so on.
+
+## Large Object Heap (LOH)
+
+Objects larger than **85,000 bytes** are allocated on the Large Object Heap. The LOH:
+
+- Is only collected during full (Gen 2) collections
+- Can cause fragmentation issues
+- Requires careful management in performance-critical scenarios
+
+## Best Practices
+
+### Avoid Manual Collection
+
+While `GC.Collect()` exists, it should rarely be used:
+
+```csharp
+// ❌ Avoid in production code
+GC.Collect();
+GC.WaitForPendingFinalizers();
+GC.Collect();
+```
+
+Only use manual collection for:
+- Performance diagnostics
+- After large batch operations
+- In controlled test scenarios
+
+### Implement IDisposable Properly
+
+```csharp
+public class ResourceHandler : IDisposable
+{
+    private bool disposed = false;
+    private IntPtr unmanagedResource;
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                // Dispose managed resources
+            }
+            
+            // Free unmanaged resources
+            if (unmanagedResource != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(unmanagedResource);
+                unmanagedResource = IntPtr.Zero;
+            }
+            
+            disposed = true;
+        }
+    }
+
+    ~ResourceHandler()
+    {
+        Dispose(false);
+    }
+}
+```
+
+## Memory Analysis Tools
+
+To detect memory leaks and optimize performance:
+
+- **dotMemory**: JetBrains' memory profiler
+- **PerfView**: Microsoft's performance analysis tool
+- **Visual Studio Diagnostic Tools**: Built-in memory profiling
+- **dotnet-counters**: CLI tool for monitoring GC metrics
+
+## Key Takeaways
+
+1. Trust the GC - it's highly optimized
+2. Use `IDisposable` for unmanaged resources
+3. Profile before optimizing
+4. Be aware of LOH allocations
+5. Avoid finalizers when possible - use `SafeHandle` instead

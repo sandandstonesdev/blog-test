@@ -1,0 +1,246 @@
+---
+title: "Advanced C# Tasks and TPL Patterns"
+date: "2026-02-04"
+---
+
+## Introduction
+
+The Task Parallel Library (TPL) revolutionized asynchronous programming in C#. Mastering TPL patterns enables building scalable, responsive applications with clean, maintainable code.
+
+## Core Concepts
+
+### Task vs Thread
+
+- **Thread**: OS-level construct, heavyweight, limited
+- **Task**: Logical unit of work, lightweight, uses thread pool efficiently
+
+```csharp
+// ❌ Old way - creates dedicated thread
+var thread = new Thread(() => DoWork());
+thread.Start();
+
+// ✅ Modern way - uses thread pool
+var task = Task.Run(() => DoWork());
+```
+
+## Parallel Execution Patterns
+
+### Task.WhenAll - Concurrent Execution
+
+Execute multiple operations concurrently and wait for all:
+
+```csharp
+public async Task<UserData> FetchUserDataAsync(int userId)
+{
+    var profileTask = _profileService.GetProfileAsync(userId);
+    var ordersTask = _orderService.GetOrdersAsync(userId);
+    var preferencesTask = _preferenceService.GetPreferencesAsync(userId);
+    
+    await Task.WhenAll(profileTask, ordersTask, preferencesTask);
+    
+    return new UserData
+    {
+        Profile = await profileTask,
+        Orders = await ordersTask,
+        Preferences = await preferencesTask
+    };
+}
+```
+
+### Task.WhenAny - First Response Wins
+
+```csharp
+public async Task<string> FetchFastestAsync(string[] urls)
+{
+    var tasks = urls.Select(url => _httpClient.GetStringAsync(url));
+    var completedTask = await Task.WhenAny(tasks);
+    return await completedTask;
+}
+```
+
+## Cancellation Patterns
+
+### Cooperative Cancellation
+
+```csharp
+public async Task ProcessDataAsync(CancellationToken cancellationToken)
+{
+    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+    cts.CancelAfter(TimeSpan.FromSeconds(30)); // Timeout
+    
+    var tasks = new List<Task<int>>();
+    
+    for (int i = 0; i < 10; i++)
+    {
+        int index = i;
+        tasks.Add(Task.Run(async () =>
+        {
+            await Task.Delay(1000 * index, cts.Token);
+            cts.Token.ThrowIfCancellationRequested();
+            return index * index;
+        }, cts.Token));
+    }
+    
+    try
+    {
+        int[] results = await Task.WhenAll(tasks);
+        Console.WriteLine($"Results: {string.Join(", ", results)}");
+    }
+    catch (OperationCanceledException)
+    {
+        Console.WriteLine("Operation was cancelled");
+    }
+}
+```
+
+### Cancellation with Fallback
+
+```csharp
+public async Task<T> WithTimeoutAsync<T>(
+    Task<T> task, 
+    TimeSpan timeout, 
+    T fallbackValue)
+{
+    using var cts = new CancellationTokenSource(timeout);
+    
+    try
+    {
+        return await task.WaitAsync(cts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        return fallbackValue;
+    }
+}
+```
+
+## Exception Handling
+
+### Handling Multiple Exceptions
+
+```csharp
+public async Task ProcessMultipleAsync()
+{
+    var tasks = new[]
+    {
+        Task.Run(() => ThrowException("Task 1")),
+        Task.Run(() => ThrowException("Task 2")),
+        Task.Run(() => ThrowException("Task 3"))
+    };
+    
+    try
+    {
+        await Task.WhenAll(tasks);
+    }
+    catch (Exception ex)
+    {
+        // Only first exception is caught
+        Console.WriteLine($"Caught: {ex.Message}");
+    }
+    
+    // Access all exceptions
+    foreach (var task in tasks)
+    {
+        if (task.IsFaulted)
+        {
+            Console.WriteLine($"Task failed: {task.Exception?.InnerException?.Message}");
+        }
+    }
+}
+```
+
+## Advanced Patterns
+
+### Task Throttling
+
+Limit concurrent operations:
+
+```csharp
+public async Task<List<T>> ProcessWithThrottleAsync<T>(
+    IEnumerable<string> items,
+    Func<string, Task<T>> processor,
+    int maxConcurrency)
+{
+    var results = new List<T>();
+    using var semaphore = new SemaphoreSlim(maxConcurrency);
+    
+    var tasks = items.Select(async item =>
+    {
+        await semaphore.WaitAsync();
+        try
+        {
+            return await processor(item);
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+    });
+    
+    return (await Task.WhenAll(tasks)).ToList();
+}
+```
+
+### Retry Logic with Exponential Backoff
+
+```csharp
+public async Task<T> RetryAsync<T>(
+    Func<Task<T>> operation,
+    int maxRetries = 3)
+{
+    for (int i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            return await operation();
+        }
+        catch (Exception ex) when (i < maxRetries - 1)
+        {
+            var delay = TimeSpan.FromSeconds(Math.Pow(2, i));
+            Console.WriteLine($"Retry {i + 1} after {delay.TotalSeconds}s");
+            await Task.Delay(delay);
+        }
+    }
+    
+    throw new Exception("Max retries exceeded");
+}
+```
+
+## ConfigureAwait Best Practices
+
+```csharp
+// Library code - avoid capturing context
+public async Task<string> LibraryMethodAsync()
+{
+    var result = await _httpClient.GetStringAsync(url)
+        .ConfigureAwait(false);
+    return result;
+}
+
+// UI code - capture context to update UI
+public async Task UpdateUIAsync()
+{
+    var data = await FetchDataAsync(); // ConfigureAwait(true) by default
+    textBox.Text = data; // Runs on UI thread
+}
+```
+
+## Performance Tips
+
+1. **Use `ValueTask<T>`** for frequently called async methods that often complete synchronously
+2. **Avoid `async void`** except for event handlers
+3. **Pool tasks** when creating many short-lived tasks
+4. **Use `Task.Yield()`** to force asynchronous continuation
+5. **Minimize allocations** with `ConfigureAwait(false)`
+
+## Common Pitfalls
+
+- **Async over sync**: Don't use `Task.Run()` to wrap synchronous code in libraries
+- **Deadlocks**: Avoid `.Result` or `.Wait()` in async contexts
+- **Fire and forget**: Always await or explicitly handle tasks
+- **Ignoring cancellation**: Check `CancellationToken.IsCancellationRequested`
+- **Exception swallowing**: Ensure all tasks are observed
+
+## Conclusion
+
+The TPL provides powerful primitives for concurrent programming. Understanding these patterns enables building high-performance, scalable applications while maintaining code clarity and correctness.
