@@ -28,6 +28,14 @@ body {
     @apply text-2xl sm:text-3xl font-bold;
   }
   
+  .heading-section {
+    @apply text-2xl font-semibold mb-3;
+  }
+  
+  .heading-page {
+    @apply text-4xl font-bold mb-8;
+  }
+  
   .link-card {
     @apply block p-4 rounded-lg border border-gray-200 dark:border-gray-700 
            bg-white dark:bg-gray-800 transition-all duration-200
@@ -39,12 +47,36 @@ body {
            group-hover:text-blue-600 dark:group-hover:text-blue-400;
   }
   
+  .link-text {
+    @apply hover:text-blue-400 transition-colors duration-200;
+  }
+  
+  .link-underline {
+    @apply underline hover:text-blue-400 transition-colors duration-200;
+  }
+  
   .btn-primary {
-    @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md 
-           transition-colors font-medium;
+    @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded 
+           transition-colors duration-200 font-medium;
+  }
+  
+  .btn-icon {
+    @apply p-2 rounded hover:bg-gray-600 transition-colors duration-200;
+  }
+  
+  .hamburger-bar {
+    @apply w-6 h-0.5 bg-white transition-all duration-200;
+  }
+  
+  .list-styled {
+    @apply list-disc pl-6;
   }
   
   .text-muted {
     @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .prose-section {
+    @apply prose prose-lg dark:prose-invert;
   }
 }

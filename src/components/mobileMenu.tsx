@@ -21,12 +21,12 @@ const MobileMenu = () => {
       {/* Hamburger button */}
       <button 
         onClick={toggleMenu}
-        className="md:hidden flex flex-col gap-1 p-2 hover:bg-gray-600 rounded"
+        className="md:hidden flex flex-col gap-1 btn-icon"
         aria-label="Toggle menu"
       >
-        <span className="w-6 h-0.5 bg-white"></span>
-        <span className="w-6 h-0.5 bg-white"></span>
-        <span className="w-6 h-0.5 bg-white"></span>
+        <span className="hamburger-bar"></span>
+        <span className="hamburger-bar"></span>
+        <span className="hamburger-bar"></span>
       </button>
 
       {/* Menu overlay */}
@@ -38,7 +38,7 @@ const MobileMenu = () => {
       >
         <button 
           onClick={toggleMenu}
-          className="absolute top-4 right-4 text-3xl hover:text-gray-400"
+          className="absolute top-4 right-4 text-3xl link-text"
           aria-label="Close menu"
         >
           ✕
@@ -50,7 +50,7 @@ const MobileMenu = () => {
               key={link.id} 
               href={link.path}
               onClick={closeMenu}
-              className="text-2xl hover:text-blue-400 transition-colors"
+              className="text-2xl link-text"
             >
               {link.name}
             </Link>

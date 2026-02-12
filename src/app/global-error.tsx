@@ -10,24 +10,17 @@ export default function GlobalError({
   return (
     <html>
       <body>
-        <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{ color: '#dc2626', marginBottom: '16px' }}>Something went wrong!</h2>
-          <p style={{ marginBottom: '16px' }}>{error.message}</p>
+        <div className="p-5 max-w-2xl mx-auto">
+          <h2 className="text-red-600 mb-4">Something went wrong!</h2>
+          <p className="mb-4">{error.message}</p>
           {error.digest && (
-            <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '16px' }}>
+            <p className="text-sm text-gray-500 mb-4">
               Error ID: {error.digest}
             </p>
           )}
           <button
             onClick={reset}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="btn-primary"
           >
             Try again
           </button>

@@ -47,9 +47,9 @@ const Post = async ({ params }: { params: SlugParams }) => {
   const { default: PostContent, metadata } = await import(`@/content/posts/${slug}.mdx`);
   
   return (
-    <article className="prose prose-lg mx-auto px-4 py-8">
+    <article className="prose-section mx-auto px-4 py-8">
       <header className="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-        <h1 className="text-4xl font-bold mb-3">
+        <h1 className="heading-page mb-3">
           {metadata.title}
         </h1>
         {metadata.date && (

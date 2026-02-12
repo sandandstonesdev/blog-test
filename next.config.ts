@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import createMDX from '@next/mdx'
 
 const nextConfig: NextConfig = {
-  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+  pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   async headers() {
     return [
       {
@@ -32,6 +32,13 @@ const nextConfig: NextConfig = {
 
 const withMDX = createMDX({
   extension: /\.(md|mdx)$/,
+  options: {
+    remarkPlugins: [
+      'remark-frontmatter',
+      ['remark-mdx-frontmatter', { name: 'metadata' }]
+    ],
+    rehypePlugins: [],
+  },
 })
 
 export default withMDX(nextConfig);

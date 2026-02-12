@@ -7,7 +7,7 @@ const Footer = () => {
       <footer>
         <p>@2026 Your Company</p>
         <div className="mt-2 flex justify-center gap-4">
-          <Link href="/privacy" className="hover:text-blue-400 underline">
+          <Link href="/privacy" className="link-underline">
             Privacy Policy
           </Link>
         </div>
