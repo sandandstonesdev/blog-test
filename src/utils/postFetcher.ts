@@ -30,8 +30,7 @@ function getPostData(): PostData[] {
         url: `${NEXT_PUBLIC_APP_URL}/posts/${slug}`,
       };
     } catch (error) {
-      console.error(`Failed to read post ${slug}:`, error);
-      return null;
+      throw new Error(`Failed to read post: ${slug}, ${String(error)}`);
     }
   });
   

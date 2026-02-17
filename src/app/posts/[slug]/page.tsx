@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
+
 import { baseMetadata } from '@/config/metadata';
 import { NEXT_PUBLIC_APP_URL } from '@/config/config';
-import { getPostSlugs } from '@/utils/posttFetcher';
+import { getPostSlugs } from '@/utils/postFetcher';
 import { isValidSlug } from '@/utils/validators';
 import { formatPostDate } from '@/utils/formatters';
 import type { SlugParams } from '@/types/params';
@@ -8,11 +10,6 @@ import type { SlugParams } from '@/types/params';
 export async function generateStaticParams() {
   const slugs = getPostSlugs();
   return slugs.map((slug) => ({ slug }));
-}
-
-export async function generateStaticPaths() {
-  const slugs = getPostSlugs();
-  return slugs.map((slug) => `/posts/${slug}`);
 }
 
 export async function generateMetadata({ params }: { params: SlugParams }) {
@@ -36,35 +33,36 @@ export async function generateMetadata({ params }: { params: SlugParams }) {
   };
 }
 
-const Post = async ({ params }: { params: SlugParams }) => {
+async function PostContentComponent({ params }: { params: SlugParams }) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
-  
   if (!isValidSlug(slug)) {
     throw new Error('Invalid slug');
   }
-  
   const { default: PostContent, metadata } = await import(`@/content/posts/${slug}.mdx`);
-  
   return (
-    <article className="prose-section mx-auto px-4 py-8">
-      <header className="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-        <h1 className="heading-page mb-3">
-          {metadata.title}
-        </h1>
-        {metadata.date && (
-          <time className="text-muted">
-            {formatPostDate(metadata.date)}
-          </time>
-        )}
-      </header>
-      
-      {/* Post Content */}
-      <div className="post-content">
+    <section className="section-container">
+      <article className="prose-section mx-auto">
+        <header className="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
+          <h1 className="heading-page mb-3">
+            {metadata.title}
+          </h1>
+          {metadata.date && (
+            <time className="text-muted">
+              {formatPostDate(metadata.date)}
+            </time>
+          )}
+        </header>
         <PostContent />
-      </div>
-    </article>
-  )
+      </article>
+    </section>
+  );
 }
 
-export default Post
+export default function Post(props: { params: SlugParams }) {
+  return (
+    <Suspense fallback={<div className="section-container text-center py-12">Loading post...</div>}>
+      <PostContentComponent {...props} />
+    </Suspense>
+  );
+}

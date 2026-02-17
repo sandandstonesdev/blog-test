@@ -33,13 +33,17 @@ const components = {
       {children}
     </pre>
   ),
-  img: (props) => (
-    <Image
-      sizes="100vw"
-      className="w-full h-auto my-4 rounded-lg"
-      {...(props as ImageProps)}
-    />
-  ),
+  img: (props) => {
+    const { alt, ...rest } = props as ImageProps;
+    return (
+      <Image
+        sizes="100vw"
+        className="w-full h-auto my-4 rounded-lg"
+        alt={alt || ''}
+        {...rest}
+      />
+    );
+  },
 } satisfies MDXComponents;
  
 export function useMDXComponents(): MDXComponents {
