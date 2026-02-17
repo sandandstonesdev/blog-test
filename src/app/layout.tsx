@@ -1,3 +1,6 @@
+import React, { Suspense } from 'react';
+import AnalyticsCookieGate from '@/components/AnalyticsCookieGate';
+
 import type { Metadata } from "next";
 import { Inter } from 'next/font/google'
 
@@ -43,16 +46,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body className={`${inter.variable} antialiased`}>
         <div className="flex flex-col h-screen w-screen">
-        <Header />
-        <div className="flex grow flex-row max-w-full max-h-full overflow-auto justify-center">
-        {children}
-        </div>
-        <Footer />
+          <Header />
+          <div className="flex grow flex-row max-w-full max-h-full overflow-auto justify-center">
+            {children}
+          </div>
+          <Footer />
         </div>
         <CookieBanner />
+        <Suspense fallback={null}>
+          <AnalyticsCookieGate />
+        </Suspense>
       </body>
     </html>
   );

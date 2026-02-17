@@ -15,11 +15,11 @@ The Task Parallel Library (TPL) revolutionized asynchronous programming in C#. M
 - **Task**: Logical unit of work, lightweight, uses thread pool efficiently
 
 ```csharp
-// ❌ Old way - creates dedicated thread
+// Old way - creates dedicated thread
 var thread = new Thread(() => DoWork());
 thread.Start();
 
-// ✅ Modern way - uses thread pool
+// Modern way - uses thread pool
 var task = Task.Run(() => DoWork());
 ```
 

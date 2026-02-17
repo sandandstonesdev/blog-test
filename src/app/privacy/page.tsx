@@ -16,27 +16,28 @@ export default function PrivacyPage() {
           Last updated: {getCurrentFormattedDate()}
         </p>
 
+
         <section className="mb-6">
           <h2 className="heading-section">What We Collect</h2>
           <p className="mb-3">
-            This blog collects minimal analytics data to understand how visitors use the site:
+            This website uses privacy-friendly analytics and observability tools to help us understand general usage and improve the site. The information collected is non-personal and does not identify you as an individual. Data may include:
           </p>
           <ul className="list-styled mb-3">
-            <li>Browser type and pages visited</li>
-            <li>General location (country/city level)</li>
-            <li>Referring website</li>
+            <li>Pages visited and actions taken on the site</li>
+            <li>General device and browser information</li>
+            <li>Approximate location (city or country)</li>
+            <li>Performance and error data to help us maintain the site</li>
           </ul>
-          <p>We do not collect personal information.</p>
+          <p>We do not collect names, email addresses, or other personal identifiers.</p>
         </section>
 
         <section className="mb-6">
           <h2 className="heading-section">Cookies</h2>
           <p className="mb-3">
-            We use two types of cookies:
+            We use cookies to remember your preferences and to enable anonymous analytics. You can choose to accept or decline analytics cookies when you first visit the site, and you can change your preferences at any time.
           </p>
-          <p className="mb-2"><strong>Essential:</strong> Remember your cookie preferences</p>
-          <p className="mb-3"><strong>Analytics (Optional):</strong> Anonymous usage statistics</p>
-          <p>You control these through the banner on your first visit.</p>
+          <p className="mb-2"><strong>Essential:</strong> Required for basic site functionality and your cookie choices.</p>
+          <p className="mb-3"><strong>Analytics (Optional):</strong> Help us understand how the site is used, without identifying you.</p>
         </section>
 
         <section className="mb-6">
@@ -48,11 +49,11 @@ export default function PrivacyPage() {
           </ul>
         </section>
 
+
         <section className="mb-6">
           <h2 className="heading-section">Third-Party Services</h2>
           <p>
-            If enabled, we use Google Analytics for anonymous visitor statistics. 
-            They have their own privacy policies.
+            We use trusted service providers (such as Vercel Analytics and observability tools) to collect anonymous usage and performance data. These services help us monitor and improve the website, but do not receive personal information about you. For more details, please refer to Vercel&apos;s privacy policy.
           </p>
         </section>
 

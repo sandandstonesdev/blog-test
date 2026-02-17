@@ -1,12 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import React from 'react'
 import { navlinks } from '../config/navLinks'
 import MobileMenu from './mobileMenu'
 
 const Navbar = () => {
-  
   return (
     <div>
       <ul className="hidden md:flex flex-row gap-6">
@@ -18,7 +16,6 @@ const Navbar = () => {
           </li>
         ))}
       </ul>
-
       <MobileMenu/>  
     </div>
   )
